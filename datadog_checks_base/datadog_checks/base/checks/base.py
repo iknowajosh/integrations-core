@@ -33,6 +33,7 @@ except ImportError:
 from ..config import is_affirmative
 from ..constants import ServiceCheck
 from ..utils.common import ensure_bytes, ensure_unicode
+from ..utils.http import RequestsWrapper
 from ..utils.proxy import config_proxy_skip
 from ..utils.limiter import Limiter
 
@@ -54,6 +55,9 @@ class __AgentCheckPy3(object):
     The base class for any Agent based integrations
     """
     OK, WARNING, CRITICAL, UNKNOWN = ServiceCheck
+
+    # Used by `self.http` RequestsWrapper
+    HTTP_CONFIG_REMAPPER = None
 
     """
     DEFAULT_METRIC_LIMIT allows to set a limit on the number of metric name and tags combination
@@ -103,6 +107,10 @@ class __AgentCheckPy3(object):
         # the agent5 'AgentCheck' setup a log attribute.
         self.log = logging.getLogger('{}.{}'.format(__name__, self.name))
 
+        # Only new checks can and should use this for HTTP requests
+        self.http = RequestsWrapper(self.instance or {}, self.init_config, self.HTTP_CONFIG_REMAPPER)
+
+        # TODO: Remove with Agent 5
         # Set proxy settings
         self.proxies = self._get_requests_proxy()
         if not self.init_config:
@@ -110,6 +118,7 @@ class __AgentCheckPy3(object):
         else:
             self._use_agent_proxy = is_affirmative(self.init_config.get('use_agent_proxy', True))
 
+        # TODO: Remove with Agent 5
         self.default_integration_http_timeout = float(self.agentConfig.get('default_integration_http_timeout', 9))
 
         self._deprecations = {
@@ -168,6 +177,7 @@ class __AgentCheckPy3(object):
         return False
 
     def get_instance_proxy(self, instance, uri, proxies=None):
+        # TODO: Remove with Agent 5
         proxies = proxies if proxies is not None else self.proxies.copy()
 
         deprecated_skip = instance.get('no_proxy', None)
@@ -401,6 +411,7 @@ class __AgentCheckPy3(object):
         return result
 
     def _get_requests_proxy(self):
+        # TODO: Remove with Agent 5
         no_proxy_settings = {
             'http': None,
             'https': None,
@@ -436,6 +447,9 @@ class __AgentCheckPy2(object):
     See https://github.com/DataDog/integrations-core/pull/2093 for more information
     """
     DEFAULT_METRIC_LIMIT = 0
+
+    # Used by `self.http` RequestsWrapper
+    HTTP_CONFIG_REMAPPER = None
 
     def __init__(self, *args, **kwargs):
         """
@@ -473,6 +487,10 @@ class __AgentCheckPy2(object):
         # the agent5 'AgentCheck' setup a log attribute.
         self.log = logging.getLogger('%s.%s' % (__name__, self.name))
 
+        # Only new checks can and should use this for HTTP requests
+        self.http = RequestsWrapper(self.instance or {}, self.init_config, self.HTTP_CONFIG_REMAPPER)
+
+        # TODO: Remove with Agent 5
         # Set proxy settings
         self.proxies = self._get_requests_proxy()
         if not self.init_config:
@@ -531,6 +549,7 @@ class __AgentCheckPy2(object):
         return False
 
     def get_instance_proxy(self, instance, uri, proxies=None):
+        # TODO: Remove with Agent 5
         proxies = proxies if proxies is not None else self.proxies.copy()
 
         deprecated_skip = instance.get('no_proxy', None)
@@ -787,6 +806,7 @@ class __AgentCheckPy2(object):
         return result
 
     def _get_requests_proxy(self):
+        # TODO: Remove with Agent 5
         no_proxy_settings = {
             "http": None,
             "https": None,
