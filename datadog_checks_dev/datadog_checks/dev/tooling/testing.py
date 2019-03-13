@@ -7,9 +7,7 @@ from .utils import get_testable_checks
 from ..subprocess import run_command
 from ..utils import chdir, path_join, read_file_binary, write_file_binary
 
-STYLE_ENVS = {
-    'flake8',
-}
+STYLE_ENVS = {'flake8', 'style'}
 
 
 def get_tox_envs(checks, style=False, benchmark=False, every=False, changed_only=False, sort=False):
